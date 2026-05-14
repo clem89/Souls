@@ -22,7 +22,11 @@ public class PlayerCamera : MonoBehaviour
         _input.LookEvent += OnLook;
     }
 
-    void OnDestroy() => _input.LookEvent -= OnLook;
+    void OnDestroy()
+    {
+        if (_input != null) _input.LookEvent -= OnLook;
+        Cursor.lockState = CursorLockMode.None;
+    }
 
     void OnLook(Vector2 delta)
     {
