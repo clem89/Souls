@@ -14,6 +14,7 @@ public class PlayerCombat : MonoBehaviour
     int _comboStep;
     float _comboTimer;
     bool _isAttacking;
+    PlayerDodge _dodge;
 
     // Parry/riposte state — populated by Task 9
     public bool IsParrying { get; private set; }
@@ -27,6 +28,7 @@ public class PlayerCombat : MonoBehaviour
     void Awake()
     {
         Debug.Assert(_input != null, "PlayerCombat: InputReader not assigned");
+        _dodge = GetComponent<PlayerDodge>();
         _input.AttackStarted += OnAttackInput;
     }
 
@@ -50,7 +52,7 @@ public class PlayerCombat : MonoBehaviour
     void OnAttackInput()
     {
         if (IsParrying) return;
-        if (TryGetComponent<PlayerDodge>(out var dodge) && dodge.IsDodging) return;
+        if (_dodge != null && _dodge.IsDodging) return;
 
         if (RiposteReady && RiposteTarget != null)
         {
@@ -115,7 +117,7 @@ public class PlayerCombat : MonoBehaviour
 
     public void SetParrying(bool value) => IsParrying = value;
 
-    void CancelRiposte()
+    public void CancelRiposte()
     {
         RiposteReady = false;
         RiposteTarget?.SetGroggy(false);
