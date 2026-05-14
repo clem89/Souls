@@ -16,17 +16,15 @@ public class InputReader : ScriptableObject
 
     void OnEnable()
     {
-        if (_actions == null) _actions = new InputSystem_Actions();
-
+        _actions = new InputSystem_Actions();
         _actions.Player.Move.performed += ctx => MoveEvent?.Invoke(ctx.ReadValue<Vector2>());
         _actions.Player.Move.canceled += _ => MoveEvent?.Invoke(Vector2.zero);
         _actions.Player.Look.performed += ctx => LookEvent?.Invoke(ctx.ReadValue<Vector2>());
         _actions.Player.Look.canceled += _ => LookEvent?.Invoke(Vector2.zero);
         _actions.Player.Attack.started += _ => AttackStarted?.Invoke();
-        _actions.Player.Jump.performed += _ => DodgePerformed?.Invoke();
-        _actions.Player.Crouch.performed += _ => ParryPerformed?.Invoke();
-        _actions.Player.Next.performed += _ => LockOnPerformed?.Invoke();
-
+        _actions.Player.Jump.performed += _ => DodgePerformed?.Invoke();    // Task 3에서 Dodge 바인딩으로 교체
+        _actions.Player.Crouch.performed += _ => ParryPerformed?.Invoke();  // Task 3에서 RMB 바인딩으로 교체
+        _actions.Player.Next.performed += _ => LockOnPerformed?.Invoke();   // Task 3에서 Middle Mouse 바인딩으로 교체
         _actions.Enable();
     }
 
