@@ -1,0 +1,30 @@
+using System;
+using UnityEngine;
+
+public class PlayerHealth : MonoBehaviour, IDamageable
+{
+    [SerializeField] float _maxHp = 100f;
+
+    PlayerDodge _dodge;
+
+    public float CurrentHp { get; private set; }
+    public float MaxHp => _maxHp;
+    public bool IsInvincible => _dodge != null && _dodge.IsInvincible;
+
+    public event Action<float> OnHpChanged;
+
+    void Awake()
+    {
+        CurrentHp = _maxHp;
+        _dodge = GetComponent<PlayerDodge>();
+    }
+
+    public void TakeDamage(float amount, GameObject source)
+    {
+        if (IsInvincible) return;
+        CurrentHp = Mathf.Max(0f, CurrentHp - amount);
+        OnHpChanged?.Invoke(CurrentHp / _maxHp);
+        Debug.Log($"[Player] HP: {CurrentHp:F0}/{_maxHp}");
+        if (CurrentHp <= 0f) Debug.Log("[Player] 사망");
+    }
+}

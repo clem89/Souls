@@ -1,0 +1,124 @@
+using System.Collections;
+using UnityEngine;
+
+public class PlayerCombat : MonoBehaviour
+{
+    [SerializeField] InputReader _input;
+    [SerializeField] float _attackRange = 1.2f;
+    [SerializeField] float _attackRadius = 0.8f;
+    [SerializeField] float _attackDamage = 20f;
+    [SerializeField] float _riposteDamage = 60f;
+    [SerializeField] float _comboWindow = 0.6f;
+    [SerializeField] LayerMask _enemyLayer;
+
+    int _comboStep;
+    float _comboTimer;
+    bool _isAttacking;
+
+    // Parry/riposte state — populated by Task 9
+    public bool IsParrying { get; private set; }
+    public bool RiposteReady { get; private set; }
+    public DummyEnemy RiposteTarget { get; private set; }
+    float _riposteTimer;
+    const float RiposteTimeLimit = 2f;
+
+    static readonly float[] ComboMultipliers = { 1f, 1f, 2f };
+
+    void Awake()
+    {
+        Debug.Assert(_input != null, "PlayerCombat: InputReader not assigned");
+        _input.AttackStarted += OnAttackInput;
+    }
+
+    void OnDestroy() => _input.AttackStarted -= OnAttackInput;
+
+    void Update()
+    {
+        if (_comboStep > 0 && !_isAttacking)
+        {
+            _comboTimer -= Time.deltaTime;
+            if (_comboTimer <= 0f) _comboStep = 0;
+        }
+
+        if (RiposteReady)
+        {
+            _riposteTimer -= Time.deltaTime;
+            if (_riposteTimer <= 0f) CancelRiposte();
+        }
+    }
+
+    void OnAttackInput()
+    {
+        if (IsParrying) return;
+        if (TryGetComponent<PlayerDodge>(out var dodge) && dodge.IsDodging) return;
+
+        if (RiposteReady && RiposteTarget != null)
+        {
+            StartCoroutine(PerformRiposte());
+            return;
+        }
+
+        if (!_isAttacking)
+            StartCoroutine(PerformAttack());
+    }
+
+    IEnumerator PerformAttack()
+    {
+        _isAttacking = true;
+        float damage = _attackDamage * ComboMultipliers[_comboStep % 3];
+        _comboStep = (_comboStep % 3) + 1;
+        _comboTimer = _comboWindow;
+
+        yield return new WaitForSeconds(0.1f);
+        DealDamage(damage);
+        yield return new WaitForSeconds(0.4f);
+        _isAttacking = false;
+    }
+
+    IEnumerator PerformRiposte()
+    {
+        RiposteReady = false;
+        _isAttacking = true;
+
+        yield return new WaitForSeconds(0.15f);
+
+        if (RiposteTarget != null)
+        {
+            transform.position = Vector3.MoveTowards(
+                transform.position, RiposteTarget.transform.position, 1.2f);
+            RiposteTarget.TakeDamage(_riposteDamage, gameObject);
+            RiposteTarget.SetGroggy(false);
+            RiposteTarget = null;
+        }
+
+        yield return new WaitForSeconds(0.5f);
+        _isAttacking = false;
+    }
+
+    void DealDamage(float damage)
+    {
+        var origin = transform.position + transform.forward * _attackRange + Vector3.up * 0.8f;
+        var hits = Physics.OverlapSphere(origin, _attackRadius, _enemyLayer);
+        foreach (var h in hits)
+        {
+            if (h.TryGetComponent<IDamageable>(out var d))
+                d.TakeDamage(damage, gameObject);
+        }
+    }
+
+    public void SetRiposteTarget(DummyEnemy enemy)
+    {
+        RiposteReady = true;
+        RiposteTarget = enemy;
+        _riposteTimer = RiposteTimeLimit;
+    }
+
+    public void SetParrying(bool value) => IsParrying = value;
+
+    void CancelRiposte()
+    {
+        RiposteReady = false;
+        RiposteTarget?.SetGroggy(false);
+        RiposteTarget = null;
+    }
+}
