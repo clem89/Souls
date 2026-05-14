@@ -17,15 +17,21 @@ public class PlayerController : MonoBehaviour
 
     void Awake()
     {
+        Debug.Assert(_input != null, "PlayerController: InputReader not assigned");
+        Debug.Assert(Camera.main != null, "PlayerController: No MainCamera found");
         _cc = GetComponent<CharacterController>();
         _cameraTransform = Camera.main.transform;
-        _input.MoveEvent += v => _moveInput = v;
+        _input.MoveEvent += OnMove;
     }
+
+    void OnDestroy() => _input.MoveEvent -= OnMove;
+
+    void OnMove(Vector2 v) => _moveInput = v;
 
     void Update()
     {
         var camForward = Vector3.ProjectOnPlane(_cameraTransform.forward, Vector3.up).normalized;
-        var camRight = _cameraTransform.right;
+        var camRight = Vector3.ProjectOnPlane(_cameraTransform.right, Vector3.up).normalized;
         MoveDirection = (camForward * _moveInput.y + camRight * _moveInput.x).normalized;
 
         if (_cc.isGrounded)
