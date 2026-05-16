@@ -10,8 +10,19 @@ public class CombatHUD : MonoBehaviour
 
     void Awake()
     {
-        _playerHealth.OnHpChanged += v => _hpSlider.value = v;
-        _stamina.Stamina.OnChanged += v => _staminaSlider.value = v / _stamina.Stamina.Max;
+        Debug.Assert(_hpSlider != null, "CombatHUD: HP Slider not assigned");
+        Debug.Assert(_staminaSlider != null, "CombatHUD: Stamina Slider not assigned");
+        Debug.Assert(_stamina != null, "CombatHUD: StaminaController not assigned");
+        Debug.Assert(_playerHealth != null, "CombatHUD: PlayerHealth not assigned");
+
+        _playerHealth.OnHpChanged += OnHpChanged;
+        _stamina.Stamina.OnChanged += OnStaminaChanged;
+    }
+
+    void OnDestroy()
+    {
+        if (_playerHealth != null) _playerHealth.OnHpChanged -= OnHpChanged;
+        if (_stamina != null) _stamina.Stamina.OnChanged -= OnStaminaChanged;
     }
 
     void Start()
@@ -19,4 +30,7 @@ public class CombatHUD : MonoBehaviour
         _hpSlider.value = 1f;
         _staminaSlider.value = 1f;
     }
+
+    void OnHpChanged(float normalizedHp) => _hpSlider.value = normalizedHp;
+    void OnStaminaChanged(float current) => _staminaSlider.value = current / _stamina.Stamina.Max;
 }
