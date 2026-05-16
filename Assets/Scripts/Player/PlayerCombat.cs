@@ -11,6 +11,11 @@ public class PlayerCombat : MonoBehaviour
     [SerializeField] float _comboWindow = 0.6f;
     [SerializeField] LayerMask _enemyLayer;
 
+    [SerializeField] float _parryActiveDuration = 0.35f;
+    [SerializeField] float _parryCooldown = 0.8f;
+    [SerializeField] float _parryDetectionRadius = 2f;
+    bool _isParryCooldown;
+
     int _comboStep;
     float _comboTimer;
     bool _isAttacking;
@@ -30,9 +35,14 @@ public class PlayerCombat : MonoBehaviour
         Debug.Assert(_input != null, "PlayerCombat: InputReader not assigned");
         _dodge = GetComponent<PlayerDodge>();
         _input.AttackStarted += OnAttackInput;
+        _input.ParryPerformed += OnParryInput;
     }
 
-    void OnDestroy() => _input.AttackStarted -= OnAttackInput;
+    void OnDestroy()
+    {
+        _input.AttackStarted -= OnAttackInput;
+        _input.ParryPerformed -= OnParryInput;
+    }
 
     void Update()
     {
@@ -122,5 +132,50 @@ public class PlayerCombat : MonoBehaviour
         RiposteReady = false;
         RiposteTarget?.SetGroggy(false);
         RiposteTarget = null;
+    }
+
+    void OnParryInput()
+    {
+        if (_isParryCooldown || IsParrying || _isAttacking) return;
+        StartCoroutine(ParryCoroutine());
+    }
+
+    IEnumerator ParryCoroutine()
+    {
+        SetParrying(true);
+        _isParryCooldown = true;
+        float elapsed = 0f;
+        bool success = false;
+
+        while (elapsed < _parryActiveDuration && !success)
+        {
+            elapsed += Time.deltaTime;
+            var hits = Physics.OverlapSphere(
+                transform.position + Vector3.up * 0.8f,
+                _parryDetectionRadius,
+                _enemyLayer);
+
+            foreach (var h in hits)
+            {
+                if (h.TryGetComponent<ParryReceiver>(out var pr) && pr.IsParryable)
+                {
+                    if (h.TryGetComponent<DummyEnemy>(out var enemy))
+                    {
+                        success = true;
+                        enemy.SetGroggy(true);
+                        SetRiposteTarget(enemy);
+                        Debug.Log("[Parry] 성공! LMB로 Riposte 입력 (2초 이내)");
+                        break;
+                    }
+                }
+            }
+            yield return null;
+        }
+
+        if (!success) Debug.Log("[Parry] 실패");
+
+        SetParrying(false);
+        yield return new WaitForSeconds(_parryCooldown);
+        _isParryCooldown = false;
     }
 }
