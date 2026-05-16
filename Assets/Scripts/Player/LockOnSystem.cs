@@ -10,26 +10,24 @@ public class LockOnSystem : MonoBehaviour
 
     Transform _currentTarget;
 
-    void Awake() => _input.LockOnPerformed += ToggleLockOn;
-
-    void OnDestroy() => _input.LockOnPerformed -= ToggleLockOn;
-
-    void Update()
+    void Awake()
     {
-        if (_currentTarget == null) return;
-        if (_currentTarget.TryGetComponent<DummyEnemy>(out var e) && e.CurrentHp <= 0f)
-        {
-            _currentTarget = null;
-            _playerCamera.LockOnTarget = null;
-        }
+        Debug.Assert(_input != null, "LockOnSystem: InputReader not assigned");
+        Debug.Assert(_playerCamera != null, "LockOnSystem: PlayerCamera not assigned");
+        _input.LockOnPerformed += ToggleLockOn;
+    }
+
+    void OnDestroy()
+    {
+        _input.LockOnPerformed -= ToggleLockOn;
+        ClearTarget();
     }
 
     void ToggleLockOn()
     {
         if (_currentTarget != null)
         {
-            _currentTarget = null;
-            _playerCamera.LockOnTarget = null;
+            ClearTarget();
             Debug.Log("[LockOn] 해제");
             return;
         }
@@ -37,8 +35,7 @@ public class LockOnSystem : MonoBehaviour
         var best = FindBestTarget();
         if (best != null)
         {
-            _currentTarget = best;
-            _playerCamera.LockOnTarget = best;
+            SetTarget(best);
             Debug.Log($"[LockOn] 타겟 잠금: {best.name}");
         }
         else
@@ -47,12 +44,28 @@ public class LockOnSystem : MonoBehaviour
         }
     }
 
+    void SetTarget(Transform target)
+    {
+        _currentTarget = target;
+        _playerCamera.LockOnTarget = target;
+        if (target.TryGetComponent<DummyEnemy>(out var enemy))
+            enemy.OnDeath += ClearTarget;
+    }
+
+    void ClearTarget()
+    {
+        if (_currentTarget != null && _currentTarget.TryGetComponent<DummyEnemy>(out var enemy))
+            enemy.OnDeath -= ClearTarget;
+        _currentTarget = null;
+        _playerCamera.LockOnTarget = null;
+    }
+
     Transform FindBestTarget()
     {
         var hits = Physics.OverlapSphere(transform.position, _range, _enemyLayer);
         Transform best = null;
         float bestScore = float.MaxValue;
-        var camForward = Camera.main.transform.forward;
+        var camForward = _playerCamera.transform.forward;
 
         foreach (var h in hits)
         {
