@@ -11,6 +11,12 @@ public class ParryReceiver : MonoBehaviour
         StartCoroutine(WindowRoutine(duration));
     }
 
+    public void CloseWindow()
+    {
+        StopAllCoroutines();
+        IsParryable = false;
+    }
+
     IEnumerator WindowRoutine(float duration)
     {
         IsParryable = true;

@@ -38,8 +38,11 @@ public class PlayerCombat : MonoBehaviour
         _input.ParryPerformed += OnParryInput;
     }
 
+    void OnDisable() => _isParryCooldown = false;
+
     void OnDestroy()
     {
+        if (_input == null) return;
         _input.AttackStarted -= OnAttackInput;
         _input.ParryPerformed -= OnParryInput;
     }
@@ -162,6 +165,7 @@ public class PlayerCombat : MonoBehaviour
                     if (h.TryGetComponent<DummyEnemy>(out var enemy))
                     {
                         success = true;
+                        pr.CloseWindow();           // 패링 윈도우 즉시 닫아 공격 취소
                         enemy.SetGroggy(true);
                         SetRiposteTarget(enemy);
                         Debug.Log("[Parry] 성공! LMB로 Riposte 입력 (2초 이내)");
