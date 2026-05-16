@@ -3,7 +3,8 @@
     "rootNamespace": "",
     "references": [
         "UnityEngine.TestRunner",
-        "UnityEditor.TestRunner"
+        "UnityEditor.TestRunner",
+        "Souls.Runtime"
     ],
     "includePlatforms": ["Editor"],
     "excludePlatforms": [],
