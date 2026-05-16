@@ -5,7 +5,11 @@ public class ParryReceiver : MonoBehaviour
 {
     public bool IsParryable { get; private set; }
 
-    public void OpenWindow(float duration) => StartCoroutine(WindowRoutine(duration));
+    public void OpenWindow(float duration)
+    {
+        StopAllCoroutines();
+        StartCoroutine(WindowRoutine(duration));
+    }
 
     IEnumerator WindowRoutine(float duration)
     {

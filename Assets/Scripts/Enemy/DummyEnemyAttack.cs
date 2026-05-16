@@ -2,6 +2,7 @@ using System.Collections;
 using UnityEngine;
 
 [RequireComponent(typeof(ParryReceiver))]
+[RequireComponent(typeof(DummyEnemy))]
 public class DummyEnemyAttack : MonoBehaviour
 {
     [SerializeField] float _attackInterval = 3f;
@@ -9,16 +10,23 @@ public class DummyEnemyAttack : MonoBehaviour
     [SerializeField] float _parryWindowDuration = 0.4f;
     [SerializeField] float _attackDamage = 25f;
     [SerializeField] float _attackRange = 2f;
-    [SerializeField] LayerMask _playerLayer;
 
     ParryReceiver _parryReceiver;
+    DummyEnemy _enemy;
     Transform _player;
 
     void Awake()
     {
         _parryReceiver = GetComponent<ParryReceiver>();
+        _enemy = GetComponent<DummyEnemy>();
+        _enemy.OnDeath += StopAttacking;
         _player = GameObject.FindGameObjectWithTag("Player")?.transform;
+        if (_player == null) Debug.LogWarning("[DummyEnemyAttack] Player 태그를 찾을 수 없습니다.");
     }
+
+    void OnDestroy() => _enemy.OnDeath -= StopAttacking;
+
+    void StopAttacking() => StopAllCoroutines();
 
     void Start() => StartCoroutine(AttackLoop());
 
