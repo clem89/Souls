@@ -65,12 +65,12 @@ public class LockOnSystem : MonoBehaviour
         var hits = Physics.OverlapSphere(transform.position, _range, _enemyLayer);
         Transform best = null;
         float bestScore = float.MaxValue;
-        var camForward = _playerCamera.transform.forward;
+        var forward = transform.forward;
 
         foreach (var h in hits)
         {
             var toTarget = h.transform.position - transform.position;
-            float angle = Vector3.Angle(camForward, toTarget);
+            float angle = Vector3.Angle(forward, toTarget);
             if (angle > _maxAngle) continue;
 
             float score = toTarget.magnitude + angle * 0.1f;

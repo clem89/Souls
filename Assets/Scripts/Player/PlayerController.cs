@@ -11,16 +11,13 @@ public class PlayerController : MonoBehaviour
     CharacterController _cc;
     Vector2 _moveInput;
     float _verticalVelocity;
-    Transform _cameraTransform;
 
     public Vector3 MoveDirection { get; private set; }
 
     void Awake()
     {
         Debug.Assert(_input != null, "PlayerController: InputReader not assigned");
-        Debug.Assert(Camera.main != null, "PlayerController: No MainCamera found");
         _cc = GetComponent<CharacterController>();
-        _cameraTransform = Camera.main.transform;
         _input.MoveEvent += OnMove;
     }
 
@@ -30,9 +27,7 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
-        var camForward = Vector3.ProjectOnPlane(_cameraTransform.forward, Vector3.up).normalized;
-        var camRight = Vector3.ProjectOnPlane(_cameraTransform.right, Vector3.up).normalized;
-        MoveDirection = (camForward * _moveInput.y + camRight * _moveInput.x).normalized;
+        MoveDirection = new Vector3(_moveInput.x, 0f, _moveInput.y).normalized;
 
         if (_cc.isGrounded)
             _verticalVelocity = -2f;
