@@ -16,6 +16,9 @@ public class PlayerCombat : MonoBehaviour
     [SerializeField] float _parryDetectionRadius = 2f;
     bool _isParryCooldown;
 
+    public int ComboStep => _comboStep;
+    public bool IsAttacking => _isAttacking;
+
     int _comboStep;
     float _comboTimer;
     bool _isAttacking;

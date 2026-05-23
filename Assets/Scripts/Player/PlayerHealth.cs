@@ -12,6 +12,9 @@ public class PlayerHealth : MonoBehaviour, IDamageable
     public bool IsInvincible => _dodge != null && _dodge.IsInvincible;
 
     public event Action<float> OnHpChanged;
+    public event Action OnDeath;
+
+    bool _isDead;
 
     void Awake()
     {
@@ -21,10 +24,13 @@ public class PlayerHealth : MonoBehaviour, IDamageable
 
     public void TakeDamage(float amount, GameObject source)
     {
-        if (IsInvincible) return;
+        if (IsInvincible || _isDead) return;
         CurrentHp = Mathf.Max(0f, CurrentHp - amount);
         OnHpChanged?.Invoke(CurrentHp / _maxHp);
-        Debug.Log($"[Player] HP: {CurrentHp:F0}/{_maxHp}");
-        if (CurrentHp <= 0f) Debug.Log("[Player] 사망");
+        if (CurrentHp <= 0f)
+        {
+            _isDead = true;
+            OnDeath?.Invoke();
+        }
     }
 }
