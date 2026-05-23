@@ -62,15 +62,15 @@ public class LockOnSystem : MonoBehaviour
 
     Transform FindBestTarget()
     {
-        var hits = Physics.OverlapSphere(transform.position, _range, _enemyLayer);
+        var hits = Physics2D.OverlapCircleAll((Vector2)transform.position, _range, _enemyLayer);
         Transform best = null;
         float bestScore = float.MaxValue;
-        var forward = transform.forward;
+        var forward = (Vector2)transform.up;
 
         foreach (var h in hits)
         {
-            var toTarget = h.transform.position - transform.position;
-            float angle = Vector3.Angle(forward, toTarget);
+            var toTarget = (Vector2)(h.transform.position - transform.position);
+            float angle = Vector2.Angle(forward, toTarget);
             if (angle > _maxAngle) continue;
 
             float score = toTarget.magnitude + angle * 0.1f;

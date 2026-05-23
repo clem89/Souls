@@ -13,20 +13,15 @@ public class DummyEnemy : MonoBehaviour, IDamageable
     public event Action<float> OnHpChanged;
     public event Action OnDeath;
 
-    Renderer _renderer;
-    Material _material;
+    SpriteRenderer _spriteRenderer;
     Color _defaultColor;
 
     void Awake()
     {
         CurrentHp = _maxHp;
-        _renderer = GetComponentInChildren<Renderer>();
-        if (_renderer != null)
-        {
-            _material = new Material(_renderer.sharedMaterial);  // 한 번만 복제
-            _renderer.material = _material;
-            _defaultColor = _material.color;
-        }
+        _spriteRenderer = GetComponentInChildren<SpriteRenderer>();
+        if (_spriteRenderer != null)
+            _defaultColor = _spriteRenderer.color;
     }
 
     public void TakeDamage(float amount, GameObject source)
@@ -42,7 +37,7 @@ public class DummyEnemy : MonoBehaviour, IDamageable
     public void SetGroggy(bool value)
     {
         IsGroggy = value;
-        if (_material != null)
-            _material.color = value ? Color.yellow : _defaultColor;
+        if (_spriteRenderer != null)
+            _spriteRenderer.color = value ? Color.yellow : _defaultColor;
     }
 }

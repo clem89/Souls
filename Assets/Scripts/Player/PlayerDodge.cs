@@ -1,7 +1,7 @@
 using System.Collections;
 using UnityEngine;
 
-[RequireComponent(typeof(CharacterController))]
+[RequireComponent(typeof(Rigidbody2D))]
 [RequireComponent(typeof(StaminaController))]
 public class PlayerDodge : MonoBehaviour
 {
@@ -12,7 +12,7 @@ public class PlayerDodge : MonoBehaviour
     [SerializeField] float _staminaCost = 25f;
     [SerializeField] float _cooldown = 0.5f;
 
-    CharacterController _cc;
+    Rigidbody2D _rb;
     StaminaController _stamina;
     PlayerController _controller;
 
@@ -24,7 +24,7 @@ public class PlayerDodge : MonoBehaviour
     void Awake()
     {
         Debug.Assert(_input != null, "PlayerDodge: InputReader not assigned");
-        _cc = GetComponent<CharacterController>();
+        _rb = GetComponent<Rigidbody2D>();
         _stamina = GetComponent<StaminaController>();
         _controller = GetComponent<PlayerController>();
         _input.DodgePerformed += OnDodgeInput;
@@ -39,12 +39,12 @@ public class PlayerDodge : MonoBehaviour
 
         var dir = (_controller != null && _controller.MoveDirection.sqrMagnitude > 0.01f)
             ? _controller.MoveDirection
-            : transform.forward;
+            : (Vector2)transform.up;
 
         StartCoroutine(DodgeCoroutine(dir));
     }
 
-    IEnumerator DodgeCoroutine(Vector3 direction)
+    IEnumerator DodgeCoroutine(Vector2 direction)
     {
         IsDodging = true;
         _onCooldown = true;
@@ -55,12 +55,13 @@ public class PlayerDodge : MonoBehaviour
 
         while (elapsed < _dodgeDuration)
         {
-            elapsed += Time.deltaTime;
+            _rb.linearVelocity = direction * speed;
+            yield return new WaitForFixedUpdate();
+            elapsed += Time.fixedDeltaTime;
             if (elapsed >= _iFrameDuration) IsInvincible = false;
-            _cc.Move(direction * speed * Time.deltaTime);
-            yield return null;
         }
 
+        _rb.linearVelocity = Vector2.zero;
         IsInvincible = false;
         IsDodging = false;
 

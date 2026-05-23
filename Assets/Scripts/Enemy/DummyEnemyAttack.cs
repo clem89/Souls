@@ -46,10 +46,9 @@ public class DummyEnemyAttack : MonoBehaviour
 
         _parryReceiver.OpenWindow(_parryWindowDuration);
 
-        // 패링 윈도우 절반 시점에 타격 판정
         yield return new WaitForSeconds(_parryWindowDuration * 0.5f);
 
-        if (_player != null && Vector3.Distance(transform.position, _player.position) <= _attackRange)
+        if (_player != null && Vector2.Distance(transform.position, _player.position) <= _attackRange)
         {
             if (_player.TryGetComponent<IDamageable>(out var dmg) && !dmg.IsInvincible)
             {

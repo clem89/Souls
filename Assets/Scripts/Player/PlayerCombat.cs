@@ -24,7 +24,6 @@ public class PlayerCombat : MonoBehaviour
     bool _isAttacking;
     PlayerDodge _dodge;
 
-    // Parry/riposte state — populated by Task 9
     public bool IsParrying { get; private set; }
     public bool RiposteReady { get; private set; }
     public DummyEnemy RiposteTarget { get; private set; }
@@ -115,8 +114,8 @@ public class PlayerCombat : MonoBehaviour
 
     void DealDamage(float damage)
     {
-        var origin = transform.position + transform.forward * _attackRange + Vector3.up * 0.8f;
-        var hits = Physics.OverlapSphere(origin, _attackRadius, _enemyLayer);
+        var origin = (Vector2)transform.position + (Vector2)transform.up * _attackRange;
+        var hits = Physics2D.OverlapCircleAll(origin, _attackRadius, _enemyLayer);
         foreach (var h in hits)
         {
             if (h.TryGetComponent<IDamageable>(out var d))
@@ -156,8 +155,8 @@ public class PlayerCombat : MonoBehaviour
         while (elapsed < _parryActiveDuration && !success)
         {
             elapsed += Time.deltaTime;
-            var hits = Physics.OverlapSphere(
-                transform.position + Vector3.up * 0.8f,
+            var hits = Physics2D.OverlapCircleAll(
+                (Vector2)transform.position,
                 _parryDetectionRadius,
                 _enemyLayer);
 
@@ -168,7 +167,7 @@ public class PlayerCombat : MonoBehaviour
                     if (h.TryGetComponent<DummyEnemy>(out var enemy))
                     {
                         success = true;
-                        pr.CloseWindow();           // 패링 윈도우 즉시 닫아 공격 취소
+                        pr.CloseWindow();
                         enemy.SetGroggy(true);
                         SetRiposteTarget(enemy);
                         Debug.Log("[Parry] 성공! LMB로 Riposte 입력 (2초 이내)");
