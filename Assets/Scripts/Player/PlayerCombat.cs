@@ -4,9 +4,6 @@ using UnityEngine;
 public class PlayerCombat : MonoBehaviour
 {
     [SerializeField] InputReader _input;
-    [SerializeField] float _attackRange = 1.2f;
-    [SerializeField] float _attackRadius = 0.8f;
-    [SerializeField] float _attackDamage = 20f;
     [SerializeField] float _riposteDamage = 60f;
     [SerializeField] float _comboWindow = 0.6f;
     [SerializeField] LayerMask _enemyLayer;
@@ -15,6 +12,8 @@ public class PlayerCombat : MonoBehaviour
     [SerializeField] float _parryCooldown = 0.8f;
     [SerializeField] float _parryDetectionRadius = 2f;
     bool _isParryCooldown;
+
+    SkillEffectPoolManager _poolManager;
 
     public int ComboStep => _comboStep;
     public bool IsAttacking => _isAttacking;
@@ -35,6 +34,8 @@ public class PlayerCombat : MonoBehaviour
     void Awake()
     {
         Debug.Assert(_input != null, "PlayerCombat: InputReader not assigned");
+        _poolManager = GetComponent<SkillEffectPoolManager>();
+        Debug.Assert(_poolManager != null, "PlayerCombat: SkillEffectPoolManager not found on Player");
         _dodge = GetComponent<PlayerDodge>();
         _input.AttackStarted += OnAttackInput;
         _input.ParryPerformed += OnParryInput;
@@ -82,12 +83,12 @@ public class PlayerCombat : MonoBehaviour
     IEnumerator PerformAttack()
     {
         _isAttacking = true;
-        float damage = _attackDamage * ComboMultipliers[_comboStep % 3];
+        float damage = _poolManager.Loadout.lightAttack.damage * ComboMultipliers[_comboStep % 3];
         _comboStep = (_comboStep % 3) + 1;
         _comboTimer = _comboWindow;
 
         yield return new WaitForSeconds(0.1f);
-        DealDamage(damage);
+        SpawnHitbox(damage);
         yield return new WaitForSeconds(0.4f);
         _isAttacking = false;
     }
@@ -112,15 +113,11 @@ public class PlayerCombat : MonoBehaviour
         _isAttacking = false;
     }
 
-    void DealDamage(float damage)
+    void SpawnHitbox(float damage)
     {
-        var origin = (Vector2)transform.position + (Vector2)transform.up * _attackRange;
-        var hits = Physics2D.OverlapCircleAll(origin, _attackRadius, _enemyLayer);
-        foreach (var h in hits)
-        {
-            if (h.TryGetComponent<IDamageable>(out var d))
-                d.TakeDamage(damage, gameObject);
-        }
+        var data = _poolManager.Loadout.lightAttack;
+        var origin = (Vector2)transform.position + (Vector2)transform.up * data.attackRange;
+        _poolManager.GetPool(data).Get().Fire(origin, damage, gameObject, _enemyLayer, data.lifetime);
     }
 
     public void SetRiposteTarget(DummyEnemy enemy)
