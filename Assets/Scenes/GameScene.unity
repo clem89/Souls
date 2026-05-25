@@ -713,7 +713,7 @@ CircleCollider2D:
   m_CompositeOperation: 0
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
-  m_Radius: 0.4
+  m_Radius: 0.1
 --- !u!50 &943119626
 Rigidbody2D:
   serializedVersion: 5
@@ -751,7 +751,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 3, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 10, y: 10, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -970,6 +970,7 @@ GameObject:
   - component: {fileID: 1930914102}
   - component: {fileID: 1930914104}
   - component: {fileID: 1930914103}
+  - component: {fileID: 1930914105}
   m_Layer: 6
   m_Name: Player
   m_TagString: Player
@@ -1037,9 +1038,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Souls.Runtime::PlayerCombat
   _input: {fileID: 11400000, guid: f92629f061d4753439531f1e4c542838, type: 2}
-  _attackRange: 1.2
-  _attackRadius: 0.8
-  _attackDamage: 20
   _riposteDamage: 60
   _comboWindow: 0.6
   _enemyLayer:
@@ -1090,7 +1088,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 10, y: 10, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -1201,7 +1199,7 @@ CircleCollider2D:
   m_CompositeOperation: 0
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
-  m_Radius: 0.4
+  m_Radius: 0.1
 --- !u!50 &1930914104
 Rigidbody2D:
   serializedVersion: 5
@@ -1229,6 +1227,19 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 1
   m_Constraints: 4
+--- !u!114 &1930914105
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1930914089}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 794dc0824f535cc49a951352bf3e3c70, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Souls.Runtime::SkillEffectPoolManager
+  _loadout: {fileID: 11400000, guid: fe80c06e4641b0b4da9dc34888493a65, type: 2}
 --- !u!1 &1964093533
 GameObject:
   m_ObjectHideFlags: 0
