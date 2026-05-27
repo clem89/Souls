@@ -136,7 +136,7 @@ public class KnightAnimatorGenerator
         AnyTrans(sm, atk2, false, (AnimatorConditionMode.Equals, 2f, "AttackStep"));
         AnyTrans(sm, atk3, false, (AnimatorConditionMode.Equals, 3f, "AttackStep"));
         foreach (var a in new[] { atk1, atk2, atk3 })
-            Trans(a, idle, false, (AnimatorConditionMode.Equals, 0f, "AttackStep"));
+            Trans(a, idle, true, (AnimatorConditionMode.Equals, 0f, "AttackStep"));
 
         // AnyState → Parry
         AnyTrans(sm, parry, false, (AnimatorConditionMode.If,    0f, "IsParrying"));
@@ -164,6 +164,7 @@ public class KnightAnimatorGenerator
     {
         var t = from.AddTransition(to);
         t.hasExitTime = exitTime; t.duration = 0f;
+        if (exitTime) t.exitTime = 1f;
         foreach (var (m, v, p) in conds) t.AddCondition(m, v, p);
     }
 

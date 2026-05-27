@@ -31,10 +31,6 @@ public class PlayerController : MonoBehaviour
         if (_dodge == null || !_dodge.IsDodging)
             _rb.MovePosition(_rb.position + MoveDirection * _moveSpeed * Time.fixedDeltaTime);
 
-        if (MoveDirection.sqrMagnitude > 0.01f)
-        {
-            float angle = Mathf.Atan2(MoveDirection.y, MoveDirection.x) * Mathf.Rad2Deg - 90f;
-            _rb.rotation = angle;
-        }
+        _rb.rotation = 0f;
     }
 }

@@ -53,8 +53,15 @@ public class PlayerAnimator : MonoBehaviour
         _animator.SetBool(IsParryingHash,   _combat != null && _combat.IsParrying);
         _animator.SetBool(RiposteReadyHash, _combat != null && _combat.RiposteReady);
 
-        float speed = _controller != null ? _controller.MoveDirection.sqrMagnitude : 0f;
-        _animator.SetFloat(SpeedHash, speed);
+        if (_controller != null)
+        {
+            Vector2 dir = _controller.MoveDirection;
+            _animator.SetFloat(SpeedHash, dir.sqrMagnitude);
+            if (_sr != null && dir.x != 0f)
+                _sr.flipX = dir.x < 0f;
+        }
+        else
+            _animator.SetFloat(SpeedHash, 0f);
     }
 
     void UpdateIFrameAlpha()
