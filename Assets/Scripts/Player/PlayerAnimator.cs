@@ -1,18 +1,16 @@
 using UnityEngine;
 
-// 스프라이트 없는 프로토타입용 — 상태별 색상 피드백
 public class PlayerAnimator : MonoBehaviour
 {
-    static readonly Color ColorIdle        = Color.white;
-    static readonly Color ColorMove        = new Color(0.6f, 1f, 0.6f);   // 연두
-    static readonly Color ColorDodge       = new Color(0.4f, 0.8f, 1f);   // 하늘
-    static readonly Color ColorIFrame      = new Color(0f,   0.8f, 1f);   // 청록 (무적)
-    static readonly Color ColorAttack      = new Color(1f,   0.5f, 0.1f); // 주황
-    static readonly Color ColorParry       = new Color(1f,   1f,   0.2f); // 노랑
-    static readonly Color ColorRiposte     = new Color(0.8f, 0.2f, 1f);   // 보라
-    static readonly Color ColorDead        = new Color(0.3f, 0.3f, 0.3f); // 회색
+    static readonly int SpeedHash        = Animator.StringToHash("Speed");
+    static readonly int AttackStepHash   = Animator.StringToHash("AttackStep");
+    static readonly int IsParryingHash   = Animator.StringToHash("IsParrying");
+    static readonly int RiposteReadyHash = Animator.StringToHash("RiposteReady");
+    static readonly int HurtTriggerHash  = Animator.StringToHash("HurtTrigger");
+    static readonly int IsDeadHash       = Animator.StringToHash("IsDead");
 
     SpriteRenderer _sr;
+    Animator _animator;
     PlayerController _controller;
     PlayerCombat _combat;
     PlayerDodge _dodge;
@@ -21,28 +19,57 @@ public class PlayerAnimator : MonoBehaviour
     void Awake()
     {
         _sr         = GetComponentInChildren<SpriteRenderer>();
+        _animator   = GetComponentInChildren<Animator>();
         _controller = GetComponent<PlayerController>();
         _combat     = GetComponent<PlayerCombat>();
         _dodge      = GetComponent<PlayerDodge>();
         _health     = GetComponent<PlayerHealth>();
     }
 
-    void Update()
+    void OnEnable()
     {
-        if (_sr == null) return;
-        _sr.color = ResolveColor();
+        if (_health != null) _health.OnHpChanged += OnHpChanged;
     }
 
-    Color ResolveColor()
+    void OnDisable()
     {
-        if (_health != null && _health.CurrentHp <= 0f)   return ColorDead;
-        if (_combat != null && _combat.RiposteReady)       return ColorRiposte;
-        if (_combat != null && _combat.IsAttacking)        return ColorAttack;
-        if (_combat != null && _combat.IsParrying)         return ColorParry;
-        if (_dodge  != null && _dodge.IsDodging)
-            return _dodge.IsInvincible ? ColorIFrame : ColorDodge;
-        if (_controller != null && _controller.MoveDirection.sqrMagnitude > 0.01f)
-            return ColorMove;
-        return ColorIdle;
+        if (_health != null) _health.OnHpChanged -= OnHpChanged;
+    }
+
+    void Update()
+    {
+        if (_animator == null) return;
+        UpdateAnimatorParams();
+        UpdateIFrameAlpha();
+    }
+
+    void UpdateAnimatorParams()
+    {
+        _animator.SetBool(IsDeadHash, _health != null && _health.CurrentHp <= 0f);
+
+        int step = (_combat != null && _combat.IsAttacking) ? _combat.ComboStep : 0;
+        _animator.SetInteger(AttackStepHash, step);
+
+        _animator.SetBool(IsParryingHash,   _combat != null && _combat.IsParrying);
+        _animator.SetBool(RiposteReadyHash, _combat != null && _combat.RiposteReady);
+
+        float speed = _controller != null ? _controller.MoveDirection.sqrMagnitude : 0f;
+        _animator.SetFloat(SpeedHash, speed);
+    }
+
+    void UpdateIFrameAlpha()
+    {
+        if (_sr == null || _dodge == null) return;
+        if (_dodge.IsInvincible)
+            _sr.color = new Color(1f, 1f, 1f, Mathf.PingPong(Time.time * 8f, 1f));
+        else
+            _sr.color = Color.white;
+    }
+
+    void OnHpChanged(float ratio)
+    {
+        // ratio == 0은 사망 — IsDead bool이 담당하므로 Hurt는 생존 피격만
+        if (ratio > 0f && _animator != null)
+            _animator.SetTrigger(HurtTriggerHash);
     }
 }
