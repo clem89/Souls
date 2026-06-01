@@ -4,40 +4,45 @@ using UnityEngine;
 public class PlayerCombat : MonoBehaviour
 {
     [SerializeField] InputReader _input;
-    [SerializeField] float _riposteDamage = 60f;
-    [SerializeField] float _comboWindow = 0.6f;
-    [SerializeField] LayerMask _enemyLayer;
+    [SerializeField] float _baseDamage     = 20f;
+    [SerializeField] float _riposteDamage  = 60f;
+    [SerializeField] float _comboWindow    = 0.6f;
 
-    [SerializeField] float _parryActiveDuration = 0.35f;
-    [SerializeField] float _parryCooldown = 0.8f;
+    [SerializeField] float _parryActiveDuration  = 0.35f;
+    [SerializeField] float _parryCooldown        = 0.8f;
     [SerializeField] float _parryDetectionRadius = 2f;
-    bool _isParryCooldown;
 
-    SkillEffectPoolManager _poolManager;
+    [SerializeField] string[] _comboSkillIds =
+        { "knight_attack01", "knight_attack02", "knight_attack03" };
 
-    public int ComboStep => _comboStep;
+    // Attack01=7f, Attack02=10f, Attack03=11f @10fps — KnightAnimatorGenerator 클립과 일치해야 함
+    static readonly float[] AttackDurations = { 0.7f, 1.0f, 1.1f };
+
+    HitboxPool       _pool;
+    PlayerController _controller;
+    PlayerDodge      _dodge;
+
+    public int  ComboStep   => _comboStep;
     public bool IsAttacking => _isAttacking;
-
-    int _comboStep;
-    float _comboTimer;
-    bool _isAttacking;
-    PlayerDodge _dodge;
-
-    public bool IsParrying { get; private set; }
+    public bool IsParrying  { get; private set; }
     public bool RiposteReady { get; private set; }
     public DummyEnemy RiposteTarget { get; private set; }
+
+    int   _comboStep;
+    float _comboTimer;
+    bool  _isAttacking;
+    bool  _isParryCooldown;
     float _riposteTimer;
     const float RiposteTimeLimit = 2f;
-
-    static readonly float[] ComboMultipliers = { 1f, 1f, 2f };
 
     void Awake()
     {
         Debug.Assert(_input != null, "PlayerCombat: InputReader not assigned");
-        _poolManager = GetComponent<SkillEffectPoolManager>();
-        Debug.Assert(_poolManager != null, "PlayerCombat: SkillEffectPoolManager not found on Player");
-        _dodge = GetComponent<PlayerDodge>();
-        _input.AttackStarted += OnAttackInput;
+        _pool       = GetComponent<HitboxPool>();
+        _controller = GetComponent<PlayerController>();
+        _dodge      = GetComponent<PlayerDodge>();
+        Debug.Assert(_pool != null, "PlayerCombat: HitboxPool not found on Player");
+        _input.AttackStarted  += OnAttackInput;
         _input.ParryPerformed += OnParryInput;
     }
 
@@ -46,7 +51,7 @@ public class PlayerCombat : MonoBehaviour
     void OnDestroy()
     {
         if (_input == null) return;
-        _input.AttackStarted -= OnAttackInput;
+        _input.AttackStarted  -= OnAttackInput;
         _input.ParryPerformed -= OnParryInput;
     }
 
@@ -83,14 +88,39 @@ public class PlayerCombat : MonoBehaviour
     IEnumerator PerformAttack()
     {
         _isAttacking = true;
-        float damage = _poolManager.Loadout.lightAttack.damage * ComboMultipliers[_comboStep % 3];
-        _comboStep = (_comboStep % 3) + 1;
+        int stepIndex = _comboStep % 3;
+        _comboStep  = stepIndex + 1;
         _comboTimer = _comboWindow;
 
-        yield return new WaitForSeconds(0.1f);
-        SpawnHitbox(damage);
-        yield return new WaitForSeconds(0.4f);
+        string skillId = stepIndex < _comboSkillIds.Length ? _comboSkillIds[stepIndex] : null;
+        SpawnEffects(skillId);
+
+        yield return new WaitForSeconds(AttackDurations[stepIndex]);
         _isAttacking = false;
+    }
+
+    void SpawnEffects(string skillId)
+    {
+        if (skillId == null) return;
+        var skill = SkillTable.Get(skillId);
+        if (skill == null) return;
+        var effect = EffectTable.Get(skill.effectId);
+        if (effect == null) return;
+
+        float damage = _baseDamage * skill.baseCoefficient;
+        foreach (var entry in effect.hitboxes)
+            StartCoroutine(SpawnHitboxAt(entry, damage));
+    }
+
+    IEnumerator SpawnHitboxAt(HitboxEntry entry, float damage)
+    {
+        yield return new WaitForSeconds(entry.delay);
+
+        float facing = _controller != null ? _controller.FacingSign : 1f;
+        var offset   = new Vector2(entry.offsetX * facing, entry.offsetY);
+        var pos      = (Vector2)transform.position + offset;
+
+        _pool.Get(entry.effectName).Fire(pos, damage, gameObject, entry.maxHit, entry.hitDelay, entry.duration);
     }
 
     IEnumerator PerformRiposte()
@@ -113,49 +143,19 @@ public class PlayerCombat : MonoBehaviour
         _isAttacking = false;
     }
 
-    void SpawnHitbox(float damage)
-    {
-        var data = _poolManager.Loadout.lightAttack;
-        var origin = (Vector2)transform.position + (Vector2)transform.up * data.attackRange;
-        _poolManager.GetPool(data).Get().Fire(origin, damage, gameObject, _enemyLayer, data.lifetime);
-    }
-
-    public void SetRiposteTarget(DummyEnemy enemy)
-    {
-        RiposteReady = true;
-        RiposteTarget = enemy;
-        _riposteTimer = RiposteTimeLimit;
-    }
-
-    public void SetParrying(bool value) => IsParrying = value;
-
-    public void CancelRiposte()
-    {
-        RiposteReady = false;
-        RiposteTarget?.SetGroggy(false);
-        RiposteTarget = null;
-    }
-
-    void OnParryInput()
-    {
-        if (_isParryCooldown || IsParrying || _isAttacking) return;
-        StartCoroutine(ParryCoroutine());
-    }
-
     IEnumerator ParryCoroutine()
     {
-        SetParrying(true);
+        IsParrying    = true;
         _isParryCooldown = true;
         float elapsed = 0f;
-        bool success = false;
+        bool  success = false;
 
         while (elapsed < _parryActiveDuration && !success)
         {
             elapsed += Time.deltaTime;
             var hits = Physics2D.OverlapCircleAll(
-                (Vector2)transform.position,
-                _parryDetectionRadius,
-                _enemyLayer);
+                (Vector2)transform.position, _parryDetectionRadius,
+                LayerMask.GetMask("Enemy"));
 
             foreach (var h in hits)
             {
@@ -177,8 +177,30 @@ public class PlayerCombat : MonoBehaviour
 
         if (!success) Debug.Log("[Parry] 실패");
 
-        SetParrying(false);
+        IsParrying = false;
         yield return new WaitForSeconds(_parryCooldown);
         _isParryCooldown = false;
+    }
+
+    void OnParryInput()
+    {
+        if (_isParryCooldown || IsParrying || _isAttacking) return;
+        StartCoroutine(ParryCoroutine());
+    }
+
+    public void SetRiposteTarget(DummyEnemy enemy)
+    {
+        RiposteReady  = true;
+        RiposteTarget = enemy;
+        _riposteTimer = RiposteTimeLimit;
+    }
+
+    public void SetParrying(bool value) => IsParrying = value;
+
+    public void CancelRiposte()
+    {
+        RiposteReady = false;
+        RiposteTarget?.SetGroggy(false);
+        RiposteTarget = null;
     }
 }

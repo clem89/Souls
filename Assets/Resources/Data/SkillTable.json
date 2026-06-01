@@ -1,0 +1,7 @@
+{
+  "entries": [
+    { "skillId": "knight_attack01", "effectId": "slash_light", "baseCoefficient": 1.0, "coeffPerLevel": 0.05 },
+    { "skillId": "knight_attack02", "effectId": "slash_mid",   "baseCoefficient": 1.0, "coeffPerLevel": 0.05 },
+    { "skillId": "knight_attack03", "effectId": "slash_heavy", "baseCoefficient": 2.0, "coeffPerLevel": 0.10 }
+  ]
+}

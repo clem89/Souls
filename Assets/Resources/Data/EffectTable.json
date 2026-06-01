@@ -1,0 +1,23 @@
+{
+  "entries": [
+    {
+      "effectId": "slash_light",
+      "hitboxes": [
+        { "delay": 0.1, "duration": 0.3, "effectName": "KnightSlash01", "maxHit": 1, "hitDelay": 0.0, "offsetX": 0.5, "offsetY": 0.0 }
+      ]
+    },
+    {
+      "effectId": "slash_mid",
+      "hitboxes": [
+        { "delay": 0.1, "duration": 0.4, "effectName": "KnightSlash02", "maxHit": 1, "hitDelay": 0.0, "offsetX": 0.6, "offsetY": 0.0 }
+      ]
+    },
+    {
+      "effectId": "slash_heavy",
+      "hitboxes": [
+        { "delay": 0.10, "duration": 0.30, "effectName": "KnightSlash03a", "maxHit": 1, "hitDelay": 0.00, "offsetX": 0.5, "offsetY": 0.0 },
+        { "delay": 0.55, "duration": 0.25, "effectName": "KnightSlash03b", "maxHit": 3, "hitDelay": 0.08, "offsetX": 0.8, "offsetY": 0.0 }
+      ]
+    }
+  ]
+}

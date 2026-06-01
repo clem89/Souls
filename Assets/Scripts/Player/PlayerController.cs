@@ -11,6 +11,7 @@ public class PlayerController : MonoBehaviour
     Vector2 _moveInput;
 
     public Vector2 MoveDirection { get; private set; }
+    public float   FacingSign    { get; private set; } = 1f;
 
     void Awake()
     {
@@ -27,6 +28,7 @@ public class PlayerController : MonoBehaviour
     void FixedUpdate()
     {
         MoveDirection = _moveInput.normalized;
+        if (MoveDirection.x != 0f) FacingSign = Mathf.Sign(MoveDirection.x);
 
         if (_dodge == null || !_dodge.IsDodging)
             _rb.MovePosition(_rb.position + MoveDirection * _moveSpeed * Time.fixedDeltaTime);
