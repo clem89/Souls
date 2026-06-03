@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -5,11 +6,12 @@ public class SkillUpgradeUI : MonoBehaviour
 {
     public static SkillUpgradeUI Instance { get; private set; }
 
-    [SerializeField] GameObject _panel;
-    [SerializeField] Button[]   _cardButtons;    // 길이 3
-    [SerializeField] Text[]     _cardNameTexts;  // 길이 3
-    [SerializeField] Text[]     _cardDescTexts;  // 길이 3
-    [SerializeField] Text[]     _cardCoeffTexts; // 길이 3
+    [SerializeField] GameObject      _panel;
+    [SerializeField] Button[]        _cardButtons;    // 길이 3
+    [SerializeField] TMP_Text[]      _cardNameTexts;  // 길이 3
+    [SerializeField] TMP_Text[]      _cardDescTexts;  // 길이 3
+    [SerializeField] TMP_Text[]      _cardCoeffTexts; // 길이 3
+    
 
     string           _pendingBaseSkillId;
     PlayerSkillState _pendingState;
