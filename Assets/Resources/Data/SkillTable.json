@@ -1,7 +1,76 @@
 {
   "entries": [
-    { "skillId": "knight_attack01", "effectId": "slash_light", "baseCoefficient": 1.0, "coeffPerLevel": 0.05 },
-    { "skillId": "knight_attack02", "effectId": "slash_mid",   "baseCoefficient": 1.0, "coeffPerLevel": 0.05 },
-    { "skillId": "knight_attack03", "effectId": "slash_heavy", "baseCoefficient": 2.0, "coeffPerLevel": 0.10 }
+    {
+      "skillId": "knight_attack01",
+      "effectId": "slash_light",
+      "baseCoefficient": 1.0,
+      "nextSkillIds": ["knight_attack01_fire", "knight_attack01_heavy", "knight_attack01_multi"]
+    },
+    {
+      "skillId": "knight_attack02",
+      "effectId": "slash_mid",
+      "baseCoefficient": 1.0,
+      "nextSkillIds": ["knight_attack02_fire", "knight_attack02_heavy"]
+    },
+    {
+      "skillId": "knight_attack03",
+      "effectId": "slash_heavy",
+      "baseCoefficient": 2.0,
+      "nextSkillIds": ["knight_attack03_fire", "knight_attack03_execute"]
+    },
+    {
+      "skillId": "knight_attack01_fire",
+      "effectId": "slash_light",
+      "baseCoefficient": 1.3,
+      "nextSkillIds": ["knight_attack01_fire_large", "knight_attack01_fire_dot"]
+    },
+    {
+      "skillId": "knight_attack01_heavy",
+      "effectId": "slash_light",
+      "baseCoefficient": 1.5,
+      "nextSkillIds": []
+    },
+    {
+      "skillId": "knight_attack01_multi",
+      "effectId": "slash_light",
+      "baseCoefficient": 1.2,
+      "nextSkillIds": []
+    },
+    {
+      "skillId": "knight_attack01_fire_large",
+      "effectId": "slash_light",
+      "baseCoefficient": 1.6,
+      "nextSkillIds": []
+    },
+    {
+      "skillId": "knight_attack01_fire_dot",
+      "effectId": "slash_light",
+      "baseCoefficient": 1.4,
+      "nextSkillIds": []
+    },
+    {
+      "skillId": "knight_attack02_fire",
+      "effectId": "slash_mid",
+      "baseCoefficient": 1.3,
+      "nextSkillIds": []
+    },
+    {
+      "skillId": "knight_attack02_heavy",
+      "effectId": "slash_mid",
+      "baseCoefficient": 1.6,
+      "nextSkillIds": []
+    },
+    {
+      "skillId": "knight_attack03_fire",
+      "effectId": "slash_heavy",
+      "baseCoefficient": 2.3,
+      "nextSkillIds": []
+    },
+    {
+      "skillId": "knight_attack03_execute",
+      "effectId": "slash_heavy",
+      "baseCoefficient": 2.5,
+      "nextSkillIds": []
+    }
   ]
 }
