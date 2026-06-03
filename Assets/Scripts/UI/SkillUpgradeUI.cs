@@ -9,6 +9,7 @@ public class SkillUpgradeUI : MonoBehaviour
     [SerializeField] GameObject    _panel;
     [SerializeField] Button[]      _cardButtons;    // 길이 3
     [SerializeField] TMP_Text[]    _cardNameTexts;  // 길이 3
+    [SerializeField] TMP_Text[]    _cardDescTexts;  // 길이 3
     [SerializeField] TMP_Text[]    _cardCoeffTexts; // 길이 3
 
     string           _pendingBaseSkillId;
@@ -35,6 +36,7 @@ public class SkillUpgradeUI : MonoBehaviour
 
             var opt = options[i];
             _cardNameTexts[i].text  = opt.skillId;
+            _cardDescTexts[i].text  = opt.description;
             _cardCoeffTexts[i].text = $"계수 x{opt.baseCoefficient:F1}";
 
             int captured = i;
