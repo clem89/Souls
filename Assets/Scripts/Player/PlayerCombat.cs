@@ -19,6 +19,7 @@ public class PlayerCombat : MonoBehaviour
     static readonly float[] AttackDurations = { 0.7f, 1.0f, 1.1f };
 
     HitboxPool       _pool;
+    [SerializeField] PlayerSkillState _skillState;
     PlayerController _controller;
     PlayerDodge      _dodge;
 
@@ -99,10 +100,11 @@ public class PlayerCombat : MonoBehaviour
         _isAttacking = false;
     }
 
-    void SpawnEffects(string skillId)
+    void SpawnEffects(string baseSkillId)
     {
-        if (skillId == null) return;
-        var skill = SkillTable.Get(skillId);
+        if (baseSkillId == null) return;
+        var id     = _skillState != null ? _skillState.GetCurrentId(baseSkillId) : baseSkillId;
+        var skill  = SkillTable.Get(id);
         if (skill == null) return;
         var effect = EffectTable.Get(skill.effectId);
         if (effect == null) return;
