@@ -5,84 +5,84 @@
       "effectId": "slash_light",
       "baseCoefficient": 1.0,
       "description": "기본 베기",
-      "nextSkillIds": ["knight_attack01_fire", "knight_attack01_heavy", "knight_attack01_multi"]
+      "parentSkillId": ""
     },
     {
       "skillId": "knight_attack02",
       "effectId": "slash_mid",
       "baseCoefficient": 1.0,
       "description": "중단 베기",
-      "nextSkillIds": ["knight_attack02_fire", "knight_attack02_heavy"]
+      "parentSkillId": ""
     },
     {
       "skillId": "knight_attack03",
       "effectId": "slash_heavy",
       "baseCoefficient": 2.0,
       "description": "강공격",
-      "nextSkillIds": ["knight_attack03_fire", "knight_attack03_execute"]
+      "parentSkillId": ""
     },
     {
       "skillId": "knight_attack01_fire",
       "effectId": "slash_light",
       "baseCoefficient": 1.3,
       "description": "베기에 화염 속성 부여",
-      "nextSkillIds": ["knight_attack01_fire_large", "knight_attack01_fire_dot"]
+      "parentSkillId": "knight_attack01"
     },
     {
       "skillId": "knight_attack01_heavy",
       "effectId": "slash_light",
       "baseCoefficient": 1.5,
       "description": "위력 강화 베기",
-      "nextSkillIds": []
+      "parentSkillId": "knight_attack01"
     },
     {
       "skillId": "knight_attack01_multi",
       "effectId": "slash_light",
       "baseCoefficient": 1.2,
       "description": "다단 히트 베기",
-      "nextSkillIds": []
+      "parentSkillId": "knight_attack01"
     },
     {
       "skillId": "knight_attack01_fire_large",
       "effectId": "slash_light",
       "baseCoefficient": 1.6,
       "description": "화염 범위 확대",
-      "nextSkillIds": []
+      "parentSkillId": "knight_attack01_fire"
     },
     {
       "skillId": "knight_attack01_fire_dot",
       "effectId": "slash_light",
       "baseCoefficient": 1.4,
       "description": "화염 지속 피해 부여",
-      "nextSkillIds": []
+      "parentSkillId": "knight_attack01_fire"
     },
     {
       "skillId": "knight_attack02_fire",
       "effectId": "slash_mid",
       "baseCoefficient": 1.3,
       "description": "중단 베기에 화염 속성",
-      "nextSkillIds": []
+      "parentSkillId": "knight_attack02"
     },
     {
       "skillId": "knight_attack02_heavy",
       "effectId": "slash_mid",
       "baseCoefficient": 1.6,
       "description": "중단 위력 강화",
-      "nextSkillIds": []
+      "parentSkillId": "knight_attack02"
     },
     {
       "skillId": "knight_attack03_fire",
       "effectId": "slash_heavy",
       "baseCoefficient": 2.3,
       "description": "강공격에 화염 속성",
-      "nextSkillIds": []
+      "parentSkillId": "knight_attack03"
     },
     {
       "skillId": "knight_attack03_execute",
       "effectId": "slash_heavy",
       "baseCoefficient": 2.5,
       "description": "처형 일격 — 대미지 대폭 증가",
-      "nextSkillIds": []
+      "parentSkillId": "knight_attack03"
     }
   ]
 }

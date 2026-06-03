@@ -98,6 +98,9 @@ public class PlayerCombat : MonoBehaviour
 
         yield return new WaitForSeconds(AttackDurations[stepIndex]);
         _isAttacking = false;
+
+        if (_input.AttackHeld && (_dodge == null || !_dodge.IsDodging) && !IsParrying)
+            StartCoroutine(PerformAttack());
     }
 
     void SpawnEffects(string baseSkillId)

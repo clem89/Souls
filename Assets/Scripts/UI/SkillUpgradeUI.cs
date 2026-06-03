@@ -13,7 +13,6 @@ public class SkillUpgradeUI : MonoBehaviour
     [SerializeField] TMP_Text[]      _cardCoeffTexts; // 길이 3
     
 
-    string           _pendingBaseSkillId;
     PlayerSkillState _pendingState;
 
     void Awake()
@@ -22,10 +21,9 @@ public class SkillUpgradeUI : MonoBehaviour
         _panel.SetActive(false);
     }
 
-    public void Show(string baseSkillId, SkillDef[] options, PlayerSkillState skillState)
+    public void Show(SkillDef[] options, PlayerSkillState skillState)
     {
-        _pendingBaseSkillId = baseSkillId;
-        _pendingState       = skillState;
+        _pendingState = skillState;
         Time.timeScale      = 0f;
         _panel.SetActive(true);
 
@@ -48,7 +46,7 @@ public class SkillUpgradeUI : MonoBehaviour
 
     void OnCardSelected(string chosenSkillId)
     {
-        _pendingState?.Evolve(_pendingBaseSkillId, chosenSkillId);
+        _pendingState?.OwnSkill(chosenSkillId);
         _panel.SetActive(false);
         Time.timeScale = 1f;
     }
