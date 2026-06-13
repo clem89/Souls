@@ -120,6 +120,7 @@ public class EnemyAnimatorGenerator : EditorWindow
             AnyTrans(sm, hurt, false, (AnimatorConditionMode.If, 0f, "HurtTrigger"));
             var hurtExit = hurt.AddTransition(idle);
             hurtExit.hasExitTime = true; hurtExit.exitTime = 1f; hurtExit.duration = 0f;
+            hurtExit.AddCondition(AnimatorConditionMode.IfNot, 0f, "IsDead");
         }
 
         if (C("Attack01") != null)
@@ -139,12 +140,6 @@ public class EnemyAnimatorGenerator : EditorWindow
             {
                 Trans(atk1, idle, true);
             }
-        }
-
-        if (C("Block") != null)
-        {
-            var block = sm.AddState("Block");
-            block.motion = C("Block");
         }
 
         EditorUtility.SetDirty(ctrl);
